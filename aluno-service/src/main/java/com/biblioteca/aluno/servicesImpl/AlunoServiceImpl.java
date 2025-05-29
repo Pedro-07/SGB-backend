@@ -34,7 +34,7 @@ public class AlunoServiceImpl implements AlunoService {
 
     @Override
     public Aluno cadastrar(Aluno aluno) {
-        //
+    	
         return alunoRepository.save(aluno);
     }
 
@@ -68,6 +68,8 @@ public class AlunoServiceImpl implements AlunoService {
         alunoExistente.setCurso(alunoAtualizado.getCurso());
         alunoExistente.setTurno(alunoAtualizado.getTurno());
         alunoExistente.setMatricula(alunoAtualizado.getMatricula());
+        alunoExistente.setEmail(alunoAtualizado.getEmail());
+
 
         return alunoRepository.save(alunoExistente);
     }

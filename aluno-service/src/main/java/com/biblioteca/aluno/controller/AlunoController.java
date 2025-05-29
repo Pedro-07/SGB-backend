@@ -79,6 +79,8 @@ public class AlunoController {
                 dto.setDataNasc(aluno.getDataNasc() != null ? aluno.getDataNasc().toString() : null);
                 dto.setTurno(aluno.getTurno());
                 dto.setMatricula(aluno.getMatricula());
+                dto.setEmail(aluno.getEmail()); 
+
 
                 if (aluno.getCurso() != null) {
                     dto.setCursoId(aluno.getCurso().getId());

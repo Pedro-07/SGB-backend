@@ -5,8 +5,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.biblioteca.emprestimo.client.AlunoClient;
+import com.biblioteca.emprestimo.client.EmailClient;
 import com.biblioteca.emprestimo.client.LivroClient;
 import com.biblioteca.emprestimo.dto.AlunoDTO;
+import com.biblioteca.emprestimo.dto.EmailRequest;
 import com.biblioteca.emprestimo.dto.EmprestimoRequest;
 import com.biblioteca.emprestimo.dto.EmprestimoResponse;
 import com.biblioteca.emprestimo.dto.LivroDTO;
@@ -20,11 +22,13 @@ public class EmprestimoServiceImpl implements EmprestimoService {
 	private final AlunoClient alunoClient;
     private final LivroClient livroClient;
     private final EmprestimoRepository repository;
+    private final EmailClient emailClient;
 
-    public EmprestimoServiceImpl(AlunoClient alunoClient, LivroClient livroClient, EmprestimoRepository repository) {
+    public EmprestimoServiceImpl(AlunoClient alunoClient, LivroClient livroClient, EmprestimoRepository repository, EmailClient emailClient) {
         this.alunoClient = alunoClient;
         this.livroClient = livroClient;
         this.repository = repository;
+        this.emailClient = emailClient;
     }
 
     @Override
@@ -46,6 +50,29 @@ public class EmprestimoServiceImpl implements EmprestimoService {
         emp.setStatus(request.getStatus());
 
         repository.save(emp);
+        
+
+        EmailRequest email = new EmailRequest();
+        email.setFrom("Biblioteca <onboarding@resend.dev>");
+        email.setTo(aluno.getEmail());
+        email.setSubject("Empréstimo Realizado com Sucesso");
+        email.setHtml(
+            "<p>Olá, " + aluno.getNome() + "!</p>" +
+            "<p>Você realizou o empréstimo do livro <strong>" + livro.getTitulo() + "</strong>.</p>" +
+            "<p>Devolução até: " + emp.getDataDevolucao() + "</p>"
+        );
+
+        // Envio via Resend API
+        emailClient.enviarEmail("Bearer re_gNhB9PAJ_4CSpSB9JfperoXXdisF8mJwd", email);
+        
+        try {
+            emailClient.enviarEmail("Bearer re_gNhB9PAJ_4CSpSB9JfperoXXdisF8mJwd", email);
+        } catch (Exception e) {
+            
+            System.err.println("Falha ao enviar e-mail: " + e.getMessage());
+        }
+
+
 
         EmprestimoResponse resp = new EmprestimoResponse();
         resp.setId(emp.getId());

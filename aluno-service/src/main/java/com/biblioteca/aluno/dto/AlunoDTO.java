@@ -5,6 +5,7 @@ public class AlunoDTO {
     private Long id; 
     private String nome;
     private String dataNasc;
+    private String email;
     private String curso;
     private String turno;
     private Integer matricula;
@@ -87,4 +88,14 @@ public class AlunoDTO {
     public void setTurno(String turno) {
         this.turno = turno;
     }
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+    
+    
 }

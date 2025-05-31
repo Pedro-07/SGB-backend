@@ -1,6 +1,5 @@
 package com.biblioteca.emprestimo.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -15,17 +14,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.biblioteca.emprestimo.client.AlunoClient;
 import com.biblioteca.emprestimo.client.LivroClient;
-import com.biblioteca.emprestimo.dto.AlunoDTO;
-import com.biblioteca.emprestimo.dto.EmprestimoDetalhadoDTO;
 import com.biblioteca.emprestimo.dto.EmprestimoRequest;
 import com.biblioteca.emprestimo.dto.EmprestimoResponse;
-import com.biblioteca.emprestimo.dto.LivroDTO;
-import com.biblioteca.emprestimo.model.Emprestimo;
 import com.biblioteca.emprestimo.repository.EmprestimoRepository;
 import com.biblioteca.emprestimo.services.EmprestimoService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
 @RestController
 @RequestMapping("/api/emprestimo")
+@Tag(name = "Empréstimos", description = "Gerenciamento de empréstimos")
 public class EmprestimoController {
 
 	private final EmprestimoService emprestimoService;
@@ -45,6 +46,15 @@ public class EmprestimoController {
 	    this.livroClient = livroClient;
 	}
 
+	@Operation(
+	        summary = "Emprestar livro", 
+	        description = "Realiza o empréstimo de um livro para um aluno. Retorna a resposta do empréstimo."
+	    )
+	    @ApiResponses(value = {
+	        @ApiResponse(responseCode = "200", description = "Empréstimo realizado com sucesso"),
+	        @ApiResponse(responseCode = "400", description = "Erro na requisição, como empréstimo não permitido"),
+	        @ApiResponse(responseCode = "500", description = "Erro interno ao processar o empréstimo")
+	    })
     @PostMapping("/emprestar")
     public ResponseEntity<?> emprestarLivro(@RequestBody EmprestimoRequest request) {
         try {
@@ -58,6 +68,12 @@ public class EmprestimoController {
         }
     }
 
+	
+	@Operation(
+	        summary = "Listar empréstimos pendentes", 
+	        description = "Retorna a lista de todos os empréstimos pendentes."
+	    )
+	    @ApiResponse(responseCode = "200", description = "Lista de empréstimos pendentes")
     @GetMapping("/listar")
     public ResponseEntity<List<EmprestimoResponse>> listarEmprestimos() {
         return ResponseEntity.ok(emprestimoService.listarPendentes());
@@ -65,7 +81,14 @@ public class EmprestimoController {
 
 
 
-
+	 @Operation(
+		        summary = "Deletar empréstimo", 
+		        description = "Deleta um empréstimo com o ID fornecido."
+		    )
+		    @ApiResponses(value = {
+		        @ApiResponse(responseCode = "200", description = "Empréstimo deletado com sucesso"),
+		        @ApiResponse(responseCode = "404", description = "Empréstimo não encontrado")
+		    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletarEmprestimo(@PathVariable Long id) {
         if (!emprestimoService.existeEmprestimo(id)) {

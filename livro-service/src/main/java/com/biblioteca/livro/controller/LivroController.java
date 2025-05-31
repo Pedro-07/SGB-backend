@@ -1,7 +1,6 @@
 package com.biblioteca.livro.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,10 +19,17 @@ import com.biblioteca.livro.model.Livro;
 import com.biblioteca.livro.repository.LivroRepository;
 import com.biblioteca.livro.services.LivroService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/livro")
+@Tag(name = "Livros", description = "Endpoints para gerenciamento de livros")
 public class LivroController {
 	
     @Autowired
@@ -32,11 +38,16 @@ public class LivroController {
     @Autowired
     private LivroService livroService;
 	
-    // Adicione o método construtor se necessário
+   
     public LivroController(LivroService livroService) {
         this.livroService = livroService;
     }
 
+    @Operation(summary = "Cadastrar um novo livro")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Livro criado com sucesso", content = @Content(schema = @Schema(implementation = Livro.class))),
+        @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content)
+    })
     @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrarLivro(@Valid @RequestBody Livro livro){
         try {
@@ -47,7 +58,7 @@ public class LivroController {
         }
     }
 
-    // Métodos de busca e listagem
+    @Operation(summary = "Buscar livros por termo no título")
     @GetMapping("/titulos")
     public ResponseEntity<List<Livro>> buscarLivros(@RequestParam String termo) {
         List<Livro> livros = livroService.buscarLivrosPorTermo(termo);
@@ -58,6 +69,7 @@ public class LivroController {
         }
     }
     
+    @Operation(summary = "Buscar livros por título exato")
     @GetMapping("/titulo/{titulo}")
     public ResponseEntity<List<Livro>> buscarPorTitulo(@PathVariable String titulo) {
         List<Livro> livros = livroService.buscarPorTitulo(titulo);
@@ -67,24 +79,35 @@ public class LivroController {
     }
 
 
+    @Operation(summary = "Listar todos os livros")
     @GetMapping("/listar")
     public ResponseEntity<List<Livro>> listarLivros() {
         List<Livro> livros = livroService.verLivros();
         return ResponseEntity.ok(livros);
     }
-
+    
+    
+    @Operation(summary = "Buscar livro por ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Livro encontrado"),
+        @ApiResponse(responseCode = "404", description = "Livro não encontrado", content = @Content)
+    })
     @GetMapping("/{id}")
     public ResponseEntity<Livro> buscarLivroPorId(@PathVariable Long id) {
         Livro livro = livroService.buscarPorId(id);
         return ResponseEntity.ok(livro);
     }
 
+    
+    @Operation(summary = "Editar um livro pelo ID")
     @PutMapping("/{id}")
     public ResponseEntity<Livro> editaLivro(@PathVariable Long id, @RequestBody Livro livro) {
         Livro respostaLivro = livroService.editar(id, livro);
         return ResponseEntity.ok(respostaLivro);
     }
 
+    
+    @Operation(summary = "Deletar um livro pelo ID")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletarLivro(@PathVariable Long id) {
         try {
@@ -97,6 +120,7 @@ public class LivroController {
 
 
 
+    @Operation(summary = "Verificar se um livro existe por ID")
     @GetMapping("/exists/{id}")
     public ResponseEntity<Boolean> existsById(@PathVariable Long id) {
         boolean exists = livroService.existsById(id);
